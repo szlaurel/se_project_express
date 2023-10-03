@@ -1,4 +1,4 @@
-const User = require("../models/user");
+const User = require('../models/user');
 
 const createUser = (req, res) => {
   console.log(req);
@@ -12,18 +12,25 @@ const createUser = (req, res) => {
       res.send({ data: user });
     })
     .catch((e) => {
-      res.status(500).send({ message: "Error from createUser", e });
+      console.log(e.name);
+      res.status(500).send({ message: 'Error from createUser', e });
     });
 };
 
 const getUser = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
+    .orFail(() => {
+      const error = new Error('User ID not found');
+      error.statusCode = 404;
+      throw error; // Remember to throw an error so .catch handles it instead of .then
+    })
     .then((items) => {
       res.status(200).send(items);
     })
     .catch((e) => {
-      res.status(500).send({ message: "Error from createUser", e });
+      console.log(e.name);
+      res.status(500).send({ message: 'Error from createUser', e });
     });
 };
 
@@ -33,7 +40,8 @@ const getUsers = (req, res) => {
       res.status(200).send(users);
     })
     .catch((e) => {
-      res.status(500).send({ message: "Error from createUser", e });
+      console.log(e.name);
+      res.status(500).send({ message: 'Error from createUser', e });
     });
 };
 

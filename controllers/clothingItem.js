@@ -12,6 +12,7 @@ const createItem = (req, res) => {
       res.send({ data: item });
     })
     .catch((e) => {
+      console.log(e.name);
       res.status(500).send({ message: "Error from createItem", e });
     });
 };
@@ -22,6 +23,7 @@ const getItems = (req, res) => {
       res.status(200).send(items);
     })
     .catch((e) => {
+      console.log(e.name);
       res.status(500).send({ message: "Error from getItems", e });
     });
 };
@@ -31,11 +33,16 @@ const updateItem = (req, res) => {
   const { imageURL } = req.body;
 
   ClothingItem.findByIdAndUpdate(itemId, { $set: { imageURL } })
-    .orFail()
+    .orFail(() => {
+      const error = new Error("Item ID not found");
+      error.statusCode = 404;
+      throw error; // Remember to throw an error so .catch handles it instead of .then
+    })
     .then((item) => {
       res.status(200).send({ data: item });
     })
     .catch((e) => {
+      console.log(e.name);
       res.status(500).send({ message: "Error from updateItem", e });
     });
 };
@@ -45,13 +52,35 @@ const deleteItem = (req, res) => {
 
   console.log(itemId);
   ClothingItem.findByIdAndDelete(itemId)
+    .orFail(() => {
+      const error = new Error("Item ID not found");
+      error.statusCode = 404;
+      throw error;
+    })
     .then((item) => {
       res.status(204).send({});
     })
     .catch((e) => {
+      console.log(e.name);
       res.status(500).send({ message: "Error from deleteItem", e });
     });
 };
+
+module.exports.likeItem = (req, res) =>
+  ClothingItem.findByIdAndUpdate(
+    req.params.itemId,
+    { $addToSet: { likes: req.user._id } },
+    { new: true },
+  );
+// ...
+
+module.exports.dislikeItem = (req, res) =>
+  ClothingItem.findByIdAndUpdate(
+    req.params.itemId,
+    { $pull: { likes: req.user._id } },
+    { new: true },
+  );
+// ...
 
 module.exports = {
   createItem,

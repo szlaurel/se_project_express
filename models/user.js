@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const validator = require("validator");
+const mongoose = require('mongoose');
+const validator = require('validator');
 
 const user = new mongoose.Schema({
   name: {
@@ -12,10 +12,10 @@ const user = new mongoose.Schema({
     type: String,
     required: true,
     validate: (v) => {
-      return validator.isURL(v);
+      validator.isURL(v);
     },
-    message: "Link is not Valid for avatar",
+    message: 'Link is not Valid for avatar',
   },
 });
 
-module.exports = mongoose.model("user", user);
+module.exports = mongoose.model('user', user);
