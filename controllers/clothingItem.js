@@ -1,4 +1,10 @@
 const ClothingItem = require("../models/clothingitem");
+const {
+  CAST_ERROR_ERROR_CODE,
+  VALIDATION_DATA_CODE,
+  NOT_FOUND_DATA_CODE,
+  INTERNAL_SERVER_ERROR_CODE,
+} = require("../utils/errors");
 
 const createItem = (req, res) => {
   console.log(req);
@@ -13,7 +19,9 @@ const createItem = (req, res) => {
     })
     .catch((e) => {
       console.log(e.name);
-      res.status(500).send({ message: "Error from createItem", e });
+      res
+        .status(INTERNAL_SERVER_ERROR_CODE)
+        .send({ message: "Error from createItem", e });
     });
 };
 
@@ -24,7 +32,9 @@ const getItems = (req, res) => {
     })
     .catch((e) => {
       console.log(e.name);
-      res.status(500).send({ message: "Error from getItems", e });
+      res
+        .status(INTERNAL_SERVER_ERROR_CODE)
+        .send({ message: "Error from getItems", e });
     });
 };
 
@@ -43,7 +53,9 @@ const updateItem = (req, res) => {
     })
     .catch((e) => {
       console.log(e.name);
-      res.status(500).send({ message: "Error from updateItem", e });
+      res
+        .status(INTERNAL_SERVER_ERROR_CODE)
+        .send({ message: "Error from updateItem", e });
     });
 };
 
@@ -62,7 +74,9 @@ const deleteItem = (req, res) => {
     })
     .catch((e) => {
       console.log(e.name);
-      res.status(500).send({ message: "Error from deleteItem", e });
+      res
+        .status(INTERNAL_SERVER_ERROR_CODE)
+        .send({ message: "Error from deleteItem", e });
     });
 };
 

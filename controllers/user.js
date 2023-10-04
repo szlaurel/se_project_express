@@ -1,36 +1,65 @@
-const User = require('../models/user');
+const user = require("../models/user");
+const User = require("../models/user");
+const {
+  CAST_ERROR_ERROR_CODE,
+  VALIDATION_DATA_CODE,
+  NOT_FOUND_DATA_CODE,
+  INTERNAL_SERVER_ERROR_CODE,
+} = require("../utils/errors");
+
+// basic roadmap to follow when passing error requests
 
 const createUser = (req, res) => {
-  console.log(req);
-  console.log(req.body);
-
   const { name, avatar } = req.body;
 
   User.create({ name, avatar })
     .then((user) => {
+      console.log("im here ");
       console.log(user);
       res.send({ data: user });
     })
-    .catch((e) => {
-      console.log(e.name);
-      res.status(500).send({ message: 'Error from createUser', e });
+    .catch((error) => {
+      console.log("im here n catch");
+
+      console.log(error.name);
+      console.log(name);
+      if (error.name === "ValidationError" || name.length < 2) {
+        res
+          .status(CAST_ERROR_ERROR_CODE)
+          .send({ message: "Name is under character limit" });
+      } else if (error.name === "ValidationError" || name.length > 30) {
+        res
+          .status(CAST_ERROR_ERROR_CODE)
+          .send({ message: "Name is past character limit" });
+      } else {
+        console.log(error.name);
+        res
+          .status(INTERNAL_SERVER_ERROR_CODE)
+          .send({ message: "Error from createUser", error });
+      }
     });
 };
+
+// write if statements in the catch blocks that catch the specific types of errors
 
 const getUser = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
     .orFail(() => {
-      const error = new Error('User ID not found');
-      error.statusCode = 404;
+      const error = new Error("User ID not found");
+      error.statusCode = NOT_FOUND_DATA_CODE;
       throw error; // Remember to throw an error so .catch handles it instead of .then
     })
     .then((items) => {
       res.status(200).send(items);
     })
     .catch((e) => {
+      // if (e.name === "CastError") {
+      // }
+      res
+        .status(INTERNAL_SERVER_ERROR_CODE)
+        .send({ message: "Error from createUser", e });
       console.log(e.name);
-      res.status(500).send({ message: 'Error from createUser', e });
     });
 };
 
@@ -41,7 +70,9 @@ const getUsers = (req, res) => {
     })
     .catch((e) => {
       console.log(e.name);
-      res.status(500).send({ message: 'Error from createUser', e });
+      res
+        .status(INTERNAL_SERVER_ERROR_CODE)
+        .send({ message: "Error from createUser", e });
     });
 };
 
