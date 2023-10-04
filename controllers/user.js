@@ -7,7 +7,10 @@ const {
   INTERNAL_SERVER_ERROR_CODE,
 } = require("../utils/errors");
 
-// basic roadmap to follow when passing error requests
+// basic roadmap to follow when passing error requests to the other requests VVV
+
+// tasks for create user
+// need to tell the validator that "https://thisisnotvalidurl", <https://x~>! is not a valid url
 
 const createUser = (req, res) => {
   const { name, avatar } = req.body;
