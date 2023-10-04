@@ -1,9 +1,10 @@
 const user = require("../models/user");
+const { validate } = require("../models/user");
 const User = require("../models/user");
 const {
   CAST_ERROR_ERROR_CODE,
-  VALIDATION_DATA_CODE,
-  NOT_FOUND_DATA_CODE,
+  VALIDATION_ERROR_CODE,
+  NOT_FOUND_ERROR_CODE,
   INTERNAL_SERVER_ERROR_CODE,
 } = require("../utils/errors");
 
@@ -11,19 +12,20 @@ const {
 
 // tasks for create user
 // need to tell the validator that "https://thisisnotvalidurl", <https://x~>! is not a valid url
+// fix for the validator was to just fix it in the schema
 
 const createUser = (req, res) => {
   const { name, avatar } = req.body;
 
   User.create({ name, avatar })
     .then((user) => {
-      console.log("im here ");
+      console.log("im here in then");
       console.log(user);
+      console.log(avatar);
       res.send({ data: user });
     })
     .catch((error) => {
       console.log("im here n catch");
-
       console.log(error.name);
       console.log(name);
       if (error.name === "ValidationError" || name.length < 2) {
@@ -34,6 +36,8 @@ const createUser = (req, res) => {
         res
           .status(CAST_ERROR_ERROR_CODE)
           .send({ message: "Name is past character limit" });
+      } else if (error.name === "TypeError") {
+        res.status(VALIDATION_ERROR_CODE).send({ message: "Url is invalid" });
       } else {
         console.log(error.name);
         res
@@ -56,13 +60,23 @@ const getUser = (req, res) => {
     .then((items) => {
       res.status(200).send(items);
     })
-    .catch((e) => {
-      // if (e.name === "CastError") {
-      // }
-      res
-        .status(INTERNAL_SERVER_ERROR_CODE)
-        .send({ message: "Error from createUser", e });
-      console.log(e.name);
+    .catch((error) => {
+      console.log("im here in catch");
+      console.log(error.name);
+      if (error.name === "CastError") {
+        res
+          .status(CAST_ERROR_ERROR_CODE)
+          .send({ message: "Cast Error occurred", error });
+      } else if (error.name === "ReferenceError") {
+        res
+          .status(NOT_FOUND_ERROR_CODE)
+          .send({ message: "Not found error occurred", error });
+      } else {
+        res
+          .status(INTERNAL_SERVER_ERROR_CODE)
+          .send({ message: "Error from createUser", error });
+        console.log(error.name);
+      }
     });
 };
 

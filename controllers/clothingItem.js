@@ -1,8 +1,8 @@
 const ClothingItem = require("../models/clothingitem");
 const {
   CAST_ERROR_ERROR_CODE,
-  VALIDATION_DATA_CODE,
-  NOT_FOUND_DATA_CODE,
+  VALIDATION_ERROR_CODE,
+  NOT_FOUND_ERROR_CODE,
   INTERNAL_SERVER_ERROR_CODE,
 } = require("../utils/errors");
 
