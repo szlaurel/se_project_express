@@ -23,19 +23,20 @@ const clothingItem = new mongoose.Schema({
       message: "Link is not a valid URL",
     },
   },
-  // owner: {
-  //   required: true,
-  //   type: mongoose.Schema.Types.ObjectId,
-  // },
-  // likes: {
-  //   type:
-  //   default: "",
-  //   ref: "user"
-  // },
-  // createdAt: {
-  //   type: Date,
-  //   default: Date.now
-  // },
+  owner: {
+    // required: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
+  },
+  likes: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "user",
+    default: [],
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model("clothingItem", clothingItem);

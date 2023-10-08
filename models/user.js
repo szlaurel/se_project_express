@@ -21,9 +21,3 @@ const user = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("user", user);
-
-// validator.isURL(v, {
-//   protocols: ["http", "https", "ftp", ".com"],
-//   require_tld: true,
-//   require_protocol: true,
-// });
