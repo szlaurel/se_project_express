@@ -132,7 +132,7 @@ const likeItem = (req, res) =>
     .then((doc) => {
       if (doc === null) {
         const error = new Error("Item ID not found");
-        error.statusCode = 404;
+        error.statusCode = NOT_FOUND_ERROR_CODE;
         throw error;
       } else {
         res.status(200).send({ doc });

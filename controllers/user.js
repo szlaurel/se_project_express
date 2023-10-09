@@ -54,7 +54,7 @@ const getUser = (req, res) => {
   User.findById(userId)
     .orFail(() => {
       const error = new Error("User ID not found");
-      error.statusCode = NOT_FOUND_DATA_CODE;
+      error.statusCode = NOT_FOUND_ERROR_CODE;
       throw error; // Remember to throw an error so .catch handles it instead of .then
     })
     .then((items) => {
@@ -63,10 +63,15 @@ const getUser = (req, res) => {
     .catch((error) => {
       console.log("im here in catch");
       console.log(error.name);
+      console.log(error.statusCode);
       if (error.name === "CastError") {
         res
           .status(CAST_ERROR_ERROR_CODE)
           .send({ message: "Cast Error occurred", error });
+      } else if (error.statusCode === NOT_FOUND_ERROR_CODE) {
+        res
+          .status(NOT_FOUND_ERROR_CODE)
+          .send({ message: "id is incorrect or does not exist", error });
       } else if (error.name === "ReferenceError") {
         res
           .status(NOT_FOUND_ERROR_CODE)
