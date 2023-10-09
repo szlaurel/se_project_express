@@ -27,13 +27,13 @@ router.get("/", getItems);
 /* -------------------------------------------------------------------------- */
 
 router.put("/:itemId", updateItem);
-router.put("/items/:itemId/likes", likeItem);
+router.put("/:itemId/likes", likeItem);
 
 /* -------------------------------------------------------------------------- */
 /*                                   Delete                                   */
 /* -------------------------------------------------------------------------- */
 
 router.delete("/:itemId", deleteItem);
-router.delete("/items/:itemId/likes", dislikeItem);
+router.delete("/:itemId/likes", dislikeItem);
 
 module.exports = router;

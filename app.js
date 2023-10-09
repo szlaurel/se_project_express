@@ -4,7 +4,7 @@
 
 const express = require("express");
 
-const { PORT = 3001, BASE_PATH } = process.env;
+const { PORT = 3001 } = process.env;
 const mongoose = require("mongoose");
 
 const app = express();
@@ -19,20 +19,18 @@ mongoose.connect(
 const routes = require("./routes");
 
 app.use(express.json());
-app.use(routes);
 app.use((req, res, next) => {
   req.user = {
     _id: "651dce85f4ee7d5fefce1e99", // paste the _id of the test user created in the previous step
   };
   next();
 });
-
+app.use(routes);
 module.exports.createClothingItem = (req, res) => {
   console.log(req.user._id); // _id will become accessible
 };
 
 app.listen(PORT, () => {
   console.log(`app is listening at port ${PORT}`);
-  console.log(BASE_PATH);
   console.log("this is working");
 });

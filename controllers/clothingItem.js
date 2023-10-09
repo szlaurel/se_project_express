@@ -15,7 +15,12 @@ const createItem = (req, res) => {
   ClothingItem.create({ name, weather, imageURL })
     .then((item) => {
       console.log(item);
-      console.log("im here in then");
+      console.log("im here in then for add an item");
+      if (item.imageURL === undefined) {
+        console.log("well it is");
+      } else {
+        console.log("nope nada");
+      }
       res.send({ data: item });
     })
     .catch((e) => {
@@ -89,11 +94,11 @@ const deleteItem = (req, res) => {
 
   console.log(itemId);
   ClothingItem.findByIdAndDelete(itemId)
-    // .orFail(() => {
-    //   const error = new Error("Item ID not found");
-    //   error.statusCode = 404;
-    //   throw error;
-    // })
+    .orFail(() => {
+      const error = new Error("Item ID not found");
+      error.statusCode = 404;
+      throw error;
+    })
     .then((item) => {
       console.log("im in then");
       res.status(200).send({ message: "successfully deleted" });
@@ -124,23 +129,68 @@ const likeItem = (req, res) =>
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .then((like) => {
-      res.status(200).send({ data: like });
+    .then((doc) => {
+      if (doc === null) {
+        const error = new Error("Item ID not found");
+        error.statusCode = 404;
+        throw error;
+      } else {
+        res.status(200).send({ doc });
+      }
     })
     .catch((e) => {
       console.log("im in catch for likeItem");
       console.log(e);
+      console.log(e.name);
+      console.log(e.statusCode);
+      if (e.name === "CastError") {
+        res
+          .status(VALIDATION_ERROR_CODE)
+          .send({ message: "property was not found", e });
+      } else if (e.statusCode === NOT_FOUND_ERROR_CODE) {
+        res
+          .status(NOT_FOUND_ERROR_CODE)
+          .send({ message: "Item ID was not found", e });
+      } else {
+        res
+          .status(INTERNAL_SERVER_ERROR_CODE)
+          .send({ message: "something happened", e });
+      }
     });
-// ...
 
 const dislikeItem = (req, res) =>
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
     { $pull: { likes: req.user._id } },
     { new: true },
-  ).catch((e) => {
-    console.log(e);
-  });
+  )
+    .then((doc) => {
+      if (doc === null) {
+        const error = new Error("Item ID not found");
+        error.statusCode = 404;
+        throw error;
+      } else {
+        res.status(200).send({ doc });
+      }
+    })
+    .catch((e) => {
+      console.log("im in catch for dislikeItem");
+      console.log(e);
+      console.log(e.name);
+      if (e.name === "CastError") {
+        res
+          .status(VALIDATION_ERROR_CODE)
+          .send({ message: "property was not found", e });
+      } else if (e.statusCode === NOT_FOUND_ERROR_CODE) {
+        res
+          .status(NOT_FOUND_ERROR_CODE)
+          .send({ message: "Item ID was not found", e });
+      } else {
+        res
+          .status(INTERNAL_SERVER_ERROR_CODE)
+          .send({ message: "something happened" });
+      }
+    });
 // ...
 
 module.exports = {
