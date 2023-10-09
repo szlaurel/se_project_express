@@ -135,6 +135,7 @@ const likeItem = (req, res) =>
         error.statusCode = NOT_FOUND_ERROR_CODE;
         throw error;
       } else {
+        console.log(doc);
         res.status(200).send({ doc });
       }
     })
@@ -167,7 +168,7 @@ const dislikeItem = (req, res) =>
     .then((doc) => {
       if (doc === null) {
         const error = new Error("Item ID not found");
-        error.statusCode = 404;
+        error.statusCode = NOT_FOUND_ERROR_CODE;
         throw error;
       } else {
         res.status(200).send({ doc });
@@ -188,7 +189,7 @@ const dislikeItem = (req, res) =>
       } else {
         res
           .status(INTERNAL_SERVER_ERROR_CODE)
-          .send({ message: "something happened" });
+          .send({ message: "something happened", e });
       }
     });
 // ...
