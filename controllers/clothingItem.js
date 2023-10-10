@@ -10,13 +10,13 @@ const createItem = (req, res) => {
   console.log(req);
   console.log(req.body);
 
-  const { name, weather, imageURL } = req.body;
+  const { name, weather, imageUrl } = req.body;
 
-  ClothingItem.create({ name, weather, imageURL })
+  ClothingItem.create({ name, weather, imageUrl })
     .then((item) => {
       console.log(item);
       console.log("im here in then for add an item");
-      if (item.imageURL === undefined) {
+      if (item.imageUrl === undefined) {
         console.log("well it is");
       } else {
         console.log("nope nada");
@@ -25,9 +25,9 @@ const createItem = (req, res) => {
     })
     .catch((e) => {
       console.log(e.name);
-      console.log(name);
-      console.log(weather);
-      console.log(imageURL);
+      // console.log(name);
+      // console.log(weather);
+      console.log(imageUrl);
       console.log("im here in catch");
       if (e.name === "ValidationError" && name === undefined) {
         res.status(VALIDATION_ERROR_CODE).send({ message: "Name is invalid" });
@@ -35,10 +35,14 @@ const createItem = (req, res) => {
         res
           .status(VALIDATION_ERROR_CODE)
           .send({ message: "weather is invalid" });
-      } else if (e.name === "ValidationError" && imageURL === undefined) {
+      } else if (e.name === "ValidationError" && imageUrl === undefined) {
         res
           .status(VALIDATION_ERROR_CODE)
           .send({ message: "imageURL is invalid" });
+      } else if (e.name === "ValidationError") {
+        res
+          .status(VALIDATION_ERROR_CODE)
+          .send({ message: "Link is a not a Valid Link" });
       } else if (e.name === "ValidationError" && name.length < 2) {
         res
           .status(CAST_ERROR_ERROR_CODE)

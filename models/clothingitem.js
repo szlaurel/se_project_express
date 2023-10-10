@@ -13,7 +13,7 @@ const clothingItem = new mongoose.Schema({
     required: true,
     enum: ["hot", "warm", "cold"],
   },
-  imageURL: {
+  imageUrl: {
     type: String,
     required: true,
     validate: {
@@ -24,7 +24,7 @@ const clothingItem = new mongoose.Schema({
     },
   },
   owner: {
-    required: true,
+    // required: true,
     type: mongoose.Schema.Types.ObjectId,
     ref: "user",
   },
@@ -38,5 +38,7 @@ const clothingItem = new mongoose.Schema({
     default: Date.now,
   },
 });
+
+// owner required true is not needed until the next sprint i think
 
 module.exports = mongoose.model("clothingItem", clothingItem);
