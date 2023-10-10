@@ -26,7 +26,7 @@ router.get("/", getItems);
 /*                                   Update                                   */
 /* -------------------------------------------------------------------------- */
 
-router.put("/:itemId", updateItem);
+// router.put("/:itemId", updateItem);
 router.put("/:itemId/likes", likeItem);
 
 /* -------------------------------------------------------------------------- */

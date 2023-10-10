@@ -14,6 +14,8 @@ const {
 // need to tell the validator that "https://thisisnotvalidurl", <https://x~>! is not a valid url
 // fix for the validator was to just fix it in the schema
 
+// there just needs to be one if statement that deals with the validation error
+
 const createUser = (req, res) => {
   const { name, avatar } = req.body;
 
@@ -28,21 +30,15 @@ const createUser = (req, res) => {
       console.log("im here n catch");
       console.log(error.name);
       console.log(name);
-      if (error.name === "ValidationError" || name.length < 2) {
+      if (error.name === "ValidationError") {
         res
           .status(CAST_ERROR_ERROR_CODE)
-          .send({ message: "Name is under character limit" });
-      } else if (error.name === "ValidationError" || name.length > 30) {
-        res
-          .status(CAST_ERROR_ERROR_CODE)
-          .send({ message: "Name is past character limit" });
-      } else if (error.name === "TypeError") {
-        res.status(VALIDATION_ERROR_CODE).send({ message: "Url is invalid" });
+          .send({ message: "Name is under  or over character limit" });
       } else {
         console.log(error.name);
         res
           .status(INTERNAL_SERVER_ERROR_CODE)
-          .send({ message: "Error from createUser", error });
+          .send({ message: "Error from createUser" });
       }
     });
 };
@@ -72,14 +68,10 @@ const getUser = (req, res) => {
         res
           .status(NOT_FOUND_ERROR_CODE)
           .send({ message: "id is incorrect or does not exist", error });
-      } else if (error.name === "ReferenceError") {
-        res
-          .status(NOT_FOUND_ERROR_CODE)
-          .send({ message: "Not found error occurred", error });
       } else {
         res
           .status(INTERNAL_SERVER_ERROR_CODE)
-          .send({ message: "Error from createUser", error });
+          .send({ message: "Error from createUser" });
         console.log(error.name);
       }
     });
@@ -94,7 +86,7 @@ const getUsers = (req, res) => {
       console.log(e.name);
       res
         .status(INTERNAL_SERVER_ERROR_CODE)
-        .send({ message: "Error from createUser", e });
+        .send({ message: "Error from createUser" });
     });
 };
 

@@ -26,9 +26,6 @@ app.use((req, res, next) => {
   next();
 });
 app.use(routes);
-module.exports.createClothingItem = (req, res) => {
-  console.log(req.user._id); // _id will become accessible
-};
 
 app.listen(PORT, () => {
   console.log(`app is listening at port ${PORT}`);

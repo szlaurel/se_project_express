@@ -29,32 +29,14 @@ const createItem = (req, res) => {
       // console.log(weather);
       console.log(imageUrl);
       console.log("im here in catch");
-      if (e.name === "ValidationError" && name === undefined) {
-        res.status(VALIDATION_ERROR_CODE).send({ message: "Name is invalid" });
-      } else if (e.name === "ValidationError" && weather === undefined) {
+      if (e.name === "ValidationError") {
         res
           .status(VALIDATION_ERROR_CODE)
-          .send({ message: "weather is invalid" });
-      } else if (e.name === "ValidationError" && imageUrl === undefined) {
-        res
-          .status(VALIDATION_ERROR_CODE)
-          .send({ message: "imageURL is invalid" });
-      } else if (e.name === "ValidationError") {
-        res
-          .status(VALIDATION_ERROR_CODE)
-          .send({ message: "Link is a not a Valid Link" });
-      } else if (e.name === "ValidationError" && name.length < 2) {
-        res
-          .status(CAST_ERROR_ERROR_CODE)
-          .send({ message: "Name is under character limit" });
-      } else if (e.name === "ValidationError" && name.length > 30) {
-        res
-          .status(CAST_ERROR_ERROR_CODE)
-          .send({ message: "Name is past character limit" });
+          .send({ message: "Validation is incorrect ", e });
       } else {
         res
           .status(INTERNAL_SERVER_ERROR_CODE)
-          .send({ message: "Error from createItem", e });
+          .send({ message: "Error from createItem" });
       }
     });
 };
@@ -68,30 +50,32 @@ const getItems = (req, res) => {
       console.log(e.name);
       res
         .status(INTERNAL_SERVER_ERROR_CODE)
-        .send({ message: "Error from getItems", e });
+        .send({ message: "Error from getItems" });
     });
 };
 
-const updateItem = (req, res) => {
-  const { itemId } = req.params;
-  const { imageURL } = req.body;
+// commenting out for a little bit
 
-  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageURL } })
-    .orFail(() => {
-      const error = new Error("Item ID not found");
-      error.statusCode = 404;
-      throw error; // Remember to throw an error so .catch handles it instead of .then
-    })
-    .then((item) => {
-      res.status(200).send({ data: item });
-    })
-    .catch((e) => {
-      console.log(e.name);
-      res
-        .status(INTERNAL_SERVER_ERROR_CODE)
-        .send({ message: "Error from updateItem", e });
-    });
-};
+// const updateItem = (req, res) => {
+//   const { itemId } = req.params;
+//   const { imageURL } = req.body;
+
+//   ClothingItem.findByIdAndUpdate(itemId, { $set: { imageURL } })
+//     .orFail(() => {
+//       const error = new Error("Item ID not found");
+//       error.statusCode = 404;
+//       throw error; // Remember to throw an error so .catch handles it instead of .then
+//     })
+//     .then((item) => {
+//       res.status(200).send({ data: item });
+//     })
+//     .catch((e) => {
+//       console.log(e.name);
+//       res
+//         .status(INTERNAL_SERVER_ERROR_CODE)
+//         .send({ message: "Error from updateItem" });
+//     });
+// };
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
@@ -115,14 +99,14 @@ const deleteItem = (req, res) => {
         res
           .status(CAST_ERROR_ERROR_CODE)
           .send({ message: "incorrect or _id or _id does not exist " });
-      } else if (e.name === "Error") {
+      } else if (e.statusCode === NOT_FOUND_ERROR_CODE) {
         res
           .status(NOT_FOUND_ERROR_CODE)
           .send({ message: "_id was not found or does not exist" });
       } else {
         res
           .status(INTERNAL_SERVER_ERROR_CODE)
-          .send({ message: "Error from deleteItem", e });
+          .send({ message: "Error from deleteItem" });
       }
     });
 };
@@ -159,7 +143,7 @@ const likeItem = (req, res) =>
       } else {
         res
           .status(INTERNAL_SERVER_ERROR_CODE)
-          .send({ message: "something happened", e });
+          .send({ message: "something happened" });
       }
     });
 
@@ -193,7 +177,7 @@ const dislikeItem = (req, res) =>
       } else {
         res
           .status(INTERNAL_SERVER_ERROR_CODE)
-          .send({ message: "something happened", e });
+          .send({ message: "something happened" });
       }
     });
 // ...
@@ -201,8 +185,9 @@ const dislikeItem = (req, res) =>
 module.exports = {
   createItem,
   getItems,
-  updateItem,
   deleteItem,
   likeItem,
   dislikeItem,
 };
+
+// updateItem,
