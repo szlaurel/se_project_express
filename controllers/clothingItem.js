@@ -32,7 +32,7 @@ const createItem = (req, res) => {
       if (e.name === "ValidationError") {
         res
           .status(VALIDATION_ERROR_CODE)
-          .send({ message: "Validation is incorrect ", e });
+          .send({ message: "Validation is incorrect " });
       } else {
         res
           .status(INTERNAL_SERVER_ERROR_CODE)
@@ -77,6 +77,8 @@ const getItems = (req, res) => {
 //     });
 // };
 
+// delete item had an "item" parameter in the "then" block
+
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
 
@@ -87,7 +89,7 @@ const deleteItem = (req, res) => {
       error.statusCode = 404;
       throw error;
     })
-    .then((item) => {
+    .then(() => {
       console.log("im in then");
       res.status(200).send({ message: "successfully deleted" });
     })
@@ -135,11 +137,11 @@ const likeItem = (req, res) =>
       if (e.name === "CastError") {
         res
           .status(VALIDATION_ERROR_CODE)
-          .send({ message: "property was not found", e });
+          .send({ message: "property was not found" });
       } else if (e.statusCode === NOT_FOUND_ERROR_CODE) {
         res
           .status(NOT_FOUND_ERROR_CODE)
-          .send({ message: "Item ID was not found", e });
+          .send({ message: "Item ID was not found" });
       } else {
         res
           .status(INTERNAL_SERVER_ERROR_CODE)
@@ -169,11 +171,11 @@ const dislikeItem = (req, res) =>
       if (e.name === "CastError") {
         res
           .status(VALIDATION_ERROR_CODE)
-          .send({ message: "property was not found", e });
+          .send({ message: "property was not found" });
       } else if (e.statusCode === NOT_FOUND_ERROR_CODE) {
         res
           .status(NOT_FOUND_ERROR_CODE)
-          .send({ message: "Item ID was not found", e });
+          .send({ message: "Item ID was not found" });
       } else {
         res
           .status(INTERNAL_SERVER_ERROR_CODE)

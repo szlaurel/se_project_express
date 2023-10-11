@@ -1,9 +1,8 @@
-const user = require("../models/user");
-const { validate } = require("../models/user");
+// const user = require("../models/user");
+// const { validate } = require("../models/user");
 const User = require("../models/user");
 const {
   CAST_ERROR_ERROR_CODE,
-  VALIDATION_ERROR_CODE,
   NOT_FOUND_ERROR_CODE,
   INTERNAL_SERVER_ERROR_CODE,
 } = require("../utils/errors");
