@@ -4,6 +4,7 @@ const {
   VALIDATION_ERROR_CODE,
   NOT_FOUND_ERROR_CODE,
   INTERNAL_SERVER_ERROR_CODE,
+  FORBIDDEN_ERROR_CODE,
 } = require("../utils/errors");
 
 const createItem = (req, res) => {
@@ -81,17 +82,26 @@ const getItems = (req, res) => {
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
+  const userId = req.user._id;
 
   console.log(itemId);
   ClothingItem.findByIdAndDelete(itemId)
     .orFail(() => {
       const error = new Error("Item ID not found");
-      error.statusCode = 404;
+      error.statusCode = NOT_FOUND_ERROR_CODE;
       throw error;
     })
     .then(() => {
       console.log("im in then");
-      res.status(200).send({ message: "successfully deleted" });
+      if (itemId === userId) {
+        res.status(200).send({ message: "successfully deleted" });
+      } else {
+        orFail(() => {
+          const error = new Error("Id's dont match");
+          error.statusCode = FORBIDDEN_ERROR_CODE;
+          throw error;
+        });
+      }
     })
     .catch((e) => {
       console.log(e.name);

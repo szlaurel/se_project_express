@@ -1,6 +1,11 @@
 const router = require("express").Router();
-const { createUser, getUser, getUsers } = require("../controllers/user");
-// const { userNameIsAtMinimum } = require('../middleware/users');
+const {
+  createUser,
+  getUser,
+  getUsers,
+  getCurrentUser,
+  updateProfile,
+} = require("../controllers/user");
 
 // CRUD
 
@@ -8,13 +13,17 @@ const { createUser, getUser, getUsers } = require("../controllers/user");
 /*                                   Create                                   */
 /* -------------------------------------------------------------------------- */
 
-router.post("/", createUser);
+// router.post("/", createUser);
 
 /* -------------------------------------------------------------------------- */
 /*                                    Read                                    */
 /* -------------------------------------------------------------------------- */
 
-router.get("/:userId", getUser);
-router.get("/", getUsers);
+// router.get("/:userId", getUser);
+// router.get("/", getUsers);
 
+router.get("/me", getCurrentUser);
+router.patch("/me", updateProfile);
+
+// router.patch("me", updateProfile)
 module.exports = router;

@@ -1,43 +1,65 @@
-// const user = require("../models/user");
+const user = require("../models/user");
 // const { validate } = require("../models/user");
-const User = require("../models/user");
+// const User = require("../models/user");
+// Need to destructure the JWT_SECRET when importing it
+const { JWT_SECRET } = require("../utils/config");
+const jwt = require("jsonwebtoken");
 const {
   CAST_ERROR_ERROR_CODE,
   NOT_FOUND_ERROR_CODE,
   INTERNAL_SERVER_ERROR_CODE,
+  CONFLICT_ERROR_CODE,
+  DUPLICATE_ERROR_CODE,
 } = require("../utils/errors");
-
-// basic roadmap to follow when passing error requests to the other requests VVV
-
-// tasks for create user
-// need to tell the validator that "https://thisisnotvalidurl", <https://x~>! is not a valid url
-// fix for the validator was to just fix it in the schema
-
-// there just needs to be one if statement that deals with the validation error
+const bcrypt = require("bcryptjs");
 
 const createUser = (req, res) => {
-  const { name, avatar } = req.body;
+  const { name, avatar, email, password } = req.body;
+  bcrypt.hash(req.body.password, 10);
 
-  User.create({ name, avatar })
-    .then((user) => {
-      console.log("im here in then");
-      console.log(user);
-      console.log(avatar);
-      res.send({ data: user });
+  // user.findUserByCredentials(email, password);
+
+  user
+    .findOne({ email })
+    .then((existingUser) => {
+      if (existingUser !== null) {
+        const error = new Error("Email already exists");
+        error.statusCode = CONFLICT_ERROR_CODE;
+        throw error;
+      }
+      return user
+        .create({ name, avatar, email, password })
+        .then((user, hash) => {
+          console.log("im here in then for createUser");
+          console.log(user);
+          console.log(user._id);
+          res.status(201).send({
+            data: user,
+            name: req.body.name,
+            avatar: req.body.avatar,
+            email: req.body.email,
+            pass: hash,
+          });
+        });
     })
     .catch((error) => {
-      console.log("im here n catch");
-      console.log(error.name);
+      console.log("im here n catch for createUser");
+      console.log(error);
       console.log(name);
       if (error.name === "ValidationError") {
         res
           .status(CAST_ERROR_ERROR_CODE)
-          .send({ message: "Name is under  or over character limit" });
+          .send({ message: "Name is under or over character limit" });
+      } else if (error.statusCode === CONFLICT_ERROR_CODE) {
+        // Handle the MongoDB duplicate key error for the 'email' field
+        res
+          .status(CONFLICT_ERROR_CODE)
+          .send({ message: "Email already exists" });
       } else {
         console.log(error.name);
         res
           .status(INTERNAL_SERVER_ERROR_CODE)
-          .send({ message: "Error from createUser" });
+          .send({ message: "Error from createUser", error });
       }
     });
 };
@@ -46,7 +68,8 @@ const createUser = (req, res) => {
 
 const getUser = (req, res) => {
   const { userId } = req.params;
-  User.findById(userId)
+  user
+    .findById(userId)
     .orFail(() => {
       const error = new Error("User ID not found");
       error.statusCode = NOT_FOUND_ERROR_CODE;
@@ -70,14 +93,15 @@ const getUser = (req, res) => {
       } else {
         res
           .status(INTERNAL_SERVER_ERROR_CODE)
-          .send({ message: "Error from createUser" });
+          .send({ message: "Error from getUser" });
         console.log(error.name);
       }
     });
 };
 
 const getUsers = (req, res) => {
-  User.find({})
+  user
+    .find({})
     .then((users) => {
       res.status(200).send(users);
     })
@@ -85,12 +109,100 @@ const getUsers = (req, res) => {
       console.log(e.name);
       res
         .status(INTERNAL_SERVER_ERROR_CODE)
-        .send({ message: "Error from createUser" });
+        .send({ message: "Error from getUsers" });
     });
 };
+
+const login = (req, res) => {
+  const { email, password } = req.body;
+  // add a check to see that email or pass is not null
+
+  return user
+    .findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
+
+      res.send({ token });
+
+      console.log(token);
+      // authentication successful! user is in the user variable
+    })
+    .catch((err) => {
+      // authentication error
+      console.error(err);
+      res.status(401).send({ message: err.message });
+    });
+};
+
+const getCurrentUser = (req, res) => {
+  const userId = req.user._id;
+  // const { userId } = req.params;
+  user
+    .findById(userId)
+    .then((currentUser) => {
+      if (!currentUser) {
+        return res
+          .status(NOT_FOUND_ERROR_CODE)
+          .send({ error: "user not found" });
+      }
+      console.log(currentUser);
+      res.status(200).send({ data: currentUser });
+    })
+    .catch((e) => {
+      res
+        .status(INTERNAL_SERVER_ERROR_CODE)
+        .json({ error: "Internal server error occurred", e });
+    });
+};
+
+const updateProfile = (req, res) => {
+  // const { userId } = req.user._id;
+  const { userId } = req.params;
+  user
+    .findbyId(userId)
+    .then((user) => {
+      res.status(200).send(user);
+    })
+    .catch((e) => {
+      if (error.name === "CastError") {
+        res
+          .status(CAST_ERROR_ERROR_CODE)
+          .send({ message: "Cast Error occurred", error });
+      } else if (error.statusCode === NOT_FOUND_ERROR_CODE) {
+        res
+          .status(NOT_FOUND_ERROR_CODE)
+          .send({ message: "id is incorrect or does not exist", error });
+      } else {
+        res
+          .status(INTERNAL_SERVER_ERROR_CODE)
+          .send({ message: "Error from updateProfile" });
+        console.log(error.name);
+      }
+    });
+};
+
+// const login = (req, res) => {
+//   const { email, password } = req.body;
+//   return user.findUserByCredentials({ email, password }).then((user) => {
+//     if (!user) {
+//       return Promise.reject(new Error("Incorrect email or password"));
+//     }
+//     return bcrypt.compare;
+//   });
+// };
 
 module.exports = {
   createUser,
   getUser,
   getUsers,
+  login,
+  getCurrentUser,
+  updateProfile,
 };
+
+/* -------------------------------------------------------------------------- */
+/*                                    Notes                                   */
+/* -------------------------------------------------------------------------- */
+// I modified the create user code to take email and password and to hask out password and to send the information back
