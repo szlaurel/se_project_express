@@ -1,3 +1,5 @@
+const clothingitem = require("../models/clothingitem");
+const { findOneAndDelete } = require("../models/clothingitem");
 const ClothingItem = require("../models/clothingitem");
 const {
   CAST_ERROR_ERROR_CODE,
@@ -11,9 +13,11 @@ const createItem = (req, res) => {
   console.log(req);
   console.log(req.body);
 
+  const owner = req.user._id;
+
   const { name, weather, imageUrl } = req.body;
 
-  ClothingItem.create({ name, weather, imageUrl })
+  ClothingItem.create({ name, weather, imageUrl, owner })
     .then((item) => {
       console.log(item);
       console.log("im here in then for add an item");
@@ -31,6 +35,7 @@ const createItem = (req, res) => {
       console.log(imageUrl);
       console.log("im here in catch");
       if (e.name === "ValidationError") {
+        console.error(e);
         res
           .status(VALIDATION_ERROR_CODE)
           .send({ message: "Validation is incorrect " });
@@ -61,7 +66,9 @@ const getItems = (req, res) => {
 //   const { itemId } = req.params;
 //   const { imageURL } = req.body;
 
-//   ClothingItem.findByIdAndUpdate(itemId, { $set: { imageURL } })
+//   console.log(req);
+
+//   ClothingItem.findByOneAndUpdate(itemId, { $set: { imageURL } })
 //     .orFail(() => {
 //       const error = new Error("Item ID not found");
 //       error.statusCode = 404;
@@ -71,40 +78,53 @@ const getItems = (req, res) => {
 //       res.status(200).send({ data: item });
 //     })
 //     .catch((e) => {
+//       console.log("im in catch for updateItem");
+//       console.log(e);
 //       console.log(e.name);
-//       res
-//         .status(INTERNAL_SERVER_ERROR_CODE)
-//         .send({ message: "Error from updateItem" });
+//       console.log(e.statusCode);
+//       if (e.name === "CastError") {
+//         res
+//           .status(VALIDATION_ERROR_CODE)
+//           .send({ message: "property was not found" });
+//       } else if (e.statusCode === NOT_FOUND_ERROR_CODE) {
+//         res
+//           .status(NOT_FOUND_ERROR_CODE)
+//           .send({ message: "Item ID was not found" });
+//       } else {
+//         res
+//           .status(INTERNAL_SERVER_ERROR_CODE)
+//           .send({ message: "Error occurred in updateItem" });
+//       }
 //     });
 // };
 
-// delete item had an "item" parameter in the "then" block
+// need to still find out how to get the item owners _id for the delete card
 
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
   const userId = req.user._id;
+  // const owner = req.user._id;
 
-  console.log(itemId);
-  ClothingItem.findByIdAndDelete(itemId)
-    .orFail(() => {
-      const error = new Error("Item ID not found");
-      error.statusCode = NOT_FOUND_ERROR_CODE;
-      throw error;
-    })
-    .then(() => {
-      console.log("im in then");
-      if (itemId === userId) {
-        res.status(200).send({ message: "successfully deleted" });
+  // console.log(req);
+  console.log(itemId, "this right here is the item Id");
+  // console.log(owner, "this is the owner ");
+  console.log(userId, "this is the userId ");
+
+  ClothingItem.findById(itemId)
+    .then((card) => {
+      if (userId === card.owner) {
+        // check if current user owns the cards
+        // req.user._id, and card.owner
+        // if so, delete the card
+        console.log(card.owner);
+        return ClothingItem.findOneAndDelete(card);
       } else {
-        orFail(() => {
-          const error = new Error("Id's dont match");
-          error.statusCode = FORBIDDEN_ERROR_CODE;
-          throw error;
-        });
+        console.log(card.owner, "this is the card owner");
+        console.log("something bad shouldve happened here");
+        throw new Error("the cards ids dont match");
       }
     })
     .catch((e) => {
-      console.log(e.name);
       console.log(e);
       console.log("im in catch");
       if (e.name === "CastError") {
@@ -115,12 +135,61 @@ const deleteItem = (req, res) => {
         res
           .status(NOT_FOUND_ERROR_CODE)
           .send({ message: "_id was not found or does not exist" });
+      } else if (e.statusCode === FORBIDDEN_ERROR_CODE) {
+        res
+          .status(FORBIDDEN_ERROR_CODE)
+          .send({ message: "you do not have access to this content" });
       } else {
         res
           .status(INTERNAL_SERVER_ERROR_CODE)
           .send({ message: "Error from deleteItem" });
       }
     });
+
+  // ClothingItem.findByIdAndDelete(itemId)
+  // .orFail(() => {
+  //   if (!itemId) {
+  //     const error = new Error("Item ID not found");
+  //     error.statusCode = NOT_FOUND_ERROR_CODE;
+  //     throw error;
+  //   }
+  // })
+  // .then((data) => {
+  //   console.log("im in then for delete item");
+  //   console.log(data);
+  //   if (userId === userId) {
+  //     res.status(200).send({ message: "successfully deleted" });
+  //   } else if (itemId == null) {
+  //     throw error;
+  //   } else {
+  //     orFail(() => {
+  //       const error = new Error("Id's dont match");
+  //       error.statusCode = FORBIDDEN_ERROR_CODE;
+  //       throw error;
+  //     });
+  //   }
+  // })
+  // .catch((e) => {
+  //   console.log(e);
+  //   console.log("im in catch");
+  //   if (e.name === "CastError") {
+  //     res
+  //       .status(CAST_ERROR_ERROR_CODE)
+  //       .send({ message: "incorrect or _id or _id does not exist " });
+  //   } else if (e.statusCode === NOT_FOUND_ERROR_CODE) {
+  //     res
+  //       .status(NOT_FOUND_ERROR_CODE)
+  //       .send({ message: "_id was not found or does not exist" });
+  //   } else if (e.statusCode === FORBIDDEN_ERROR_CODE) {
+  //     res
+  //       .status(FORBIDDEN_ERROR_CODE)
+  //       .send({ message: "you do not have access to this content" });
+  //   } else {
+  //     res
+  //       .status(INTERNAL_SERVER_ERROR_CODE)
+  //       .send({ message: "Error from deleteItem" });
+  //   }
+  // });
 };
 
 const likeItem = (req, res) =>
@@ -155,7 +224,7 @@ const likeItem = (req, res) =>
       } else {
         res
           .status(INTERNAL_SERVER_ERROR_CODE)
-          .send({ message: "something happened" });
+          .send({ message: "Error occurred in like item" });
       }
     });
 
@@ -189,7 +258,7 @@ const dislikeItem = (req, res) =>
       } else {
         res
           .status(INTERNAL_SERVER_ERROR_CODE)
-          .send({ message: "something happened" });
+          .send({ message: "Error occurred in dislike item" });
       }
     });
 // ...
@@ -203,3 +272,14 @@ module.exports = {
 };
 
 // updateItem,
+
+/* -------------------------------------------------------------------------- */
+/*                              delete item code                              */
+/* -------------------------------------------------------------------------- */
+// this code below this comment is the instructors code that i should modify and fit into to the clothing items by id
+// ClothingItem.findById(itemId).then((res) => {
+//   if (res.owner.equals(userId)) {
+//     return ClothingItem.findByIdAndDelete(itemId).then(res).catch();
+//   } else {
+//   }
+// });

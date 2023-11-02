@@ -11,14 +11,10 @@ const {
   CONFLICT_ERROR_CODE,
   DUPLICATE_ERROR_CODE,
 } = require("../utils/errors");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 
 const createUser = (req, res) => {
-  const { name, avatar, email, password } = req.body;
-  bcrypt.hash(req.body.password, 10);
-
-  // user.findUserByCredentials(email, password);
-
+  const { name, avatar, email } = req.body;
   user
     .findOne({ email })
     .then((existingUser) => {
@@ -27,41 +23,71 @@ const createUser = (req, res) => {
         error.statusCode = CONFLICT_ERROR_CODE;
         throw error;
       }
-      return user
-        .create({ name, avatar, email, password })
-        .then((user, hash) => {
-          console.log("im here in then for createUser");
-          console.log(user);
-          console.log(user._id);
-          res.status(201).send({
-            data: user,
-            name: req.body.name,
-            avatar: req.body.avatar,
-            email: req.body.email,
-            pass: hash,
+      bcrypt.hash(req.body.password, 10).then((hash) => {
+        return user
+          .create({ name, avatar, email, password: hash })
+          .then((user) => {
+            console.log("im here in then for createUser");
+            console.log(user);
+            console.log(user._id);
+            res.status(201).send({
+              data: user,
+              name: req.body.name,
+              avatar: req.body.avatar,
+              email: req.body.email,
+            });
+          })
+          .catch((error) => {
+            console.log("im here n catch for createUser");
+            console.log(error);
+            console.log(name);
+            if (error.name === "ValidationError") {
+              res
+                .status(CAST_ERROR_ERROR_CODE)
+                .send({ message: "Name is under or over character limit" });
+              // } else if (error.statusCode === CONFLICT_ERROR_CODE) {
+              //   // Handle the MongoDB duplicate key error for the 'email' field
+              //   res
+              //     .status(CONFLICT_ERROR_CODE)
+              //     .send({ message: "Email already exists" });
+            } else {
+              console.log(error.name);
+              res
+                .status(INTERNAL_SERVER_ERROR_CODE)
+                .send({ message: "Error from createUser", error });
+            }
           });
-        });
+      });
     })
-    .catch((error) => {
-      console.log("im here n catch for createUser");
-      console.log(error);
-      console.log(name);
-      if (error.name === "ValidationError") {
-        res
-          .status(CAST_ERROR_ERROR_CODE)
-          .send({ message: "Name is under or over character limit" });
-      } else if (error.statusCode === CONFLICT_ERROR_CODE) {
+    .catch((e) => {
+      console.log(e);
+      if (e.statusCode === CONFLICT_ERROR_CODE) {
         // Handle the MongoDB duplicate key error for the 'email' field
         res
           .status(CONFLICT_ERROR_CODE)
           .send({ message: "Email already exists" });
-      } else {
-        console.log(error.name);
-        res
-          .status(INTERNAL_SERVER_ERROR_CODE)
-          .send({ message: "Error from createUser", error });
       }
     });
+  // .catch((error) => {
+  //   console.log("im here n catch for createUser");
+  //   console.log(error);
+  //   console.log(name);
+  //   if (error.name === "ValidationError") {
+  //     res
+  //       .status(CAST_ERROR_ERROR_CODE)
+  //       .send({ message: "Name is under or over character limit" });
+  //   } else if (error.statusCode === CONFLICT_ERROR_CODE) {
+  //     // Handle the MongoDB duplicate key error for the 'email' field
+  //     res
+  //       .status(CONFLICT_ERROR_CODE)
+  //       .send({ message: "Email already exists" });
+  //   } else {
+  //     console.log(error.name);
+  //     res
+  //       .status(INTERNAL_SERVER_ERROR_CODE)
+  //       .send({ message: "Error from createUser", error });
+  //   }
+  // });
 };
 
 // write if statements in the catch blocks that catch the specific types of errors
@@ -120,17 +146,19 @@ const login = (req, res) => {
   return user
     .findUserByCredentials(email, password)
     .then((user) => {
+      console.log({ e: email, p: password });
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
 
       res.send({ token });
 
-      console.log(token);
+      console.log("token sent successful");
       // authentication successful! user is in the user variable
     })
     .catch((err) => {
       // authentication error
+      console.log("we landed at the auth error");
       console.error(err);
       res.status(401).send({ message: err.message });
     });
@@ -158,14 +186,18 @@ const getCurrentUser = (req, res) => {
 };
 
 const updateProfile = (req, res) => {
-  // const { userId } = req.user._id;
-  const { userId } = req.params;
+  const userId = req.user._id;
+  // const { userId } = req.params;
+  const { name, avatar, email } = req.body;
+  console.log(userId);
   user
-    .findbyId(userId)
+    .findOneAndUpdate(userId)
     .then((user) => {
-      res.status(200).send(user);
+      res
+        .status(200)
+        .send({ data: user, name: name, avatar: avatar, email: email });
     })
-    .catch((e) => {
+    .catch((error) => {
       if (error.name === "CastError") {
         res
           .status(CAST_ERROR_ERROR_CODE)
