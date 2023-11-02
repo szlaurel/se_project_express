@@ -1,5 +1,6 @@
 const clothingitem = require("../models/clothingitem");
 const { findOneAndDelete } = require("../models/clothingitem");
+const mongoose = require("mongoose");
 const ClothingItem = require("../models/clothingitem");
 const {
   CAST_ERROR_ERROR_CODE,
@@ -103,25 +104,26 @@ const getItems = (req, res) => {
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
   const userId = req.user._id;
-  // const owner = req.user._id;
 
   // console.log(req);
   console.log(itemId, "this right here is the item Id");
-  // console.log(owner, "this is the owner ");
   console.log(userId, "this is the userId ");
 
   ClothingItem.findById(itemId)
     .then((card) => {
-      if (userId === card.owner) {
+      if (card.owner.equals(userId)) {
         // check if current user owns the cards
         // req.user._id, and card.owner
         // if so, delete the card
-        console.log(card.owner);
-        return ClothingItem.findOneAndDelete(card);
+        console.log(card.owner, "I AM HERE");
+        return ClothingItem.findByIdAndDelete(itemId).then(() => {
+          res.send({ message: "Delete" });
+        });
       } else {
         console.log(card.owner, "this is the card owner");
+        console.log(new mongoose.Types.ObjectId(userId), "this is the userId");
         console.log("something bad shouldve happened here");
-        throw new Error("the cards ids dont match");
+        throw new Error("the owner ids dont match");
       }
     })
     .catch((e) => {
