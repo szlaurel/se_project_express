@@ -1,6 +1,5 @@
-const clothingitem = require("../models/clothingitem");
-const { findOneAndDelete } = require("../models/clothingitem");
 const mongoose = require("mongoose");
+// const { findOneAndDelete } = require("../models/clothingitem");
 const ClothingItem = require("../models/clothingitem");
 const {
   CAST_ERROR_ERROR_CODE,
@@ -119,12 +118,11 @@ const deleteItem = (req, res) => {
         return ClothingItem.findByIdAndDelete(itemId).then(() => {
           res.send({ message: "Delete" });
         });
-      } else {
-        console.log(card.owner, "this is the card owner");
-        console.log(new mongoose.Types.ObjectId(userId), "this is the userId");
-        console.log("something bad shouldve happened here");
-        throw new Error("the owner ids dont match");
       }
+      console.log(card.owner, "this is the card owner");
+      console.log(new mongoose.Types.ObjectId(userId), "this is the userId");
+      console.log("something bad shouldve happened here");
+      throw new Error("the owner ids dont match");
     })
     .catch((e) => {
       console.log(e);

@@ -1,17 +1,16 @@
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 const user = require("../models/user");
 // const { validate } = require("../models/user");
 // const User = require("../models/user");
 // Need to destructure the JWT_SECRET when importing it
 const { JWT_SECRET } = require("../utils/config");
-const jwt = require("jsonwebtoken");
 const {
   CAST_ERROR_ERROR_CODE,
   NOT_FOUND_ERROR_CODE,
   INTERNAL_SERVER_ERROR_CODE,
   CONFLICT_ERROR_CODE,
-  DUPLICATE_ERROR_CODE,
 } = require("../utils/errors");
-const bcrypt = require("bcrypt");
 
 const createUser = (req, res) => {
   const { name, avatar, email } = req.body;
@@ -23,15 +22,15 @@ const createUser = (req, res) => {
         error.statusCode = CONFLICT_ERROR_CODE;
         throw error;
       }
-      bcrypt.hash(req.body.password, 10).then((hash) => {
-        return user
+      bcrypt.hash(req.body.password, 10).then((hash) =>
+        user
           .create({ name, avatar, email, password: hash })
-          .then((user) => {
+          .then((userInfo) => {
             console.log("im here in then for createUser");
-            console.log(user);
-            console.log(user._id);
+            console.log(userInfo);
+            console.log(userInfo._id);
             res.status(201).send({
-              data: user,
+              data: userInfo,
               name: req.body.name,
               avatar: req.body.avatar,
               email: req.body.email,
@@ -56,8 +55,8 @@ const createUser = (req, res) => {
                 .status(INTERNAL_SERVER_ERROR_CODE)
                 .send({ message: "Error from createUser", error });
             }
-          });
-      });
+          }),
+      );
     })
     .catch((e) => {
       console.log(e);
@@ -145,9 +144,9 @@ const login = (req, res) => {
 
   return user
     .findUserByCredentials(email, password)
-    .then((user) => {
+    .then((userInfo) => {
       console.log({ e: email, p: password });
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+      const token = jwt.sign({ _id: userInfo._id }, JWT_SECRET, {
         expiresIn: "7d",
       });
 
@@ -192,10 +191,8 @@ const updateProfile = (req, res) => {
   console.log(userId);
   user
     .findOneAndUpdate(userId)
-    .then((user) => {
-      res
-        .status(200)
-        .send({ data: user, name: name, avatar: avatar, email: email });
+    .then((userInfo) => {
+      res.status(200).send({ data: userInfo, name, avatar, email });
     })
     .catch((error) => {
       if (error.name === "CastError") {

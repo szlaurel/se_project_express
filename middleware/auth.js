@@ -1,7 +1,8 @@
 // middleware/auth.js
-const { JWT_SECRET } = require("../utils/config");
-console.log(JWT_SECRET);
 const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require("../utils/config");
+
+console.log(JWT_SECRET);
 
 const auth = (req, res, next) => {
   // get authorization from the header by destructuring
