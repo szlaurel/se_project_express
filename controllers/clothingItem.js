@@ -129,10 +129,18 @@ const deleteItem = (req, res) => {
     .catch((e) => {
       console.log(e);
       console.log("im in catch");
+      console.log(e.name);
+      console.log(e.message);
       if (e.name === "CastError") {
         res
           .status(CAST_ERROR_ERROR_CODE)
           .send({ message: "incorrect or _id or _id does not exist " });
+      } else if (e.message === "the owner ids dont match") {
+        res.status(FORBIDDEN_ERROR_CODE).send({ message: "ids do not match" });
+      } else if (e.name === "TypeError") {
+        res
+          .status(NOT_FOUND_ERROR_CODE)
+          .send({ message: "_id was not found or does not exist" });
       } else if (e.statusCode === NOT_FOUND_ERROR_CODE) {
         res
           .status(NOT_FOUND_ERROR_CODE)
@@ -144,7 +152,7 @@ const deleteItem = (req, res) => {
       } else {
         res
           .status(INTERNAL_SERVER_ERROR_CODE)
-          .send({ message: "Error from deleteItem" });
+          .send({ message: "Error from deleteItem", e });
       }
     });
 
