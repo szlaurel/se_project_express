@@ -110,6 +110,12 @@ const deleteItem = (req, res) => {
 
   ClothingItem.findById(itemId)
     .then((card) => {
+      // the if card null statement is new to the code due to the reviewer
+      if (card === null) {
+        const error = new Error("Item ID not found");
+        error.statusCode = NOT_FOUND_ERROR_CODE;
+        throw error;
+      }
       if (card.owner.equals(userId)) {
         // check if current user owns the cards
         // req.user._id, and card.owner
@@ -135,10 +141,6 @@ const deleteItem = (req, res) => {
           .send({ message: "incorrect or _id or _id does not exist " });
       } else if (e.message === "the owner ids dont match") {
         res.status(FORBIDDEN_ERROR_CODE).send({ message: "ids do not match" });
-      } else if (e.name === "TypeError") {
-        res
-          .status(NOT_FOUND_ERROR_CODE)
-          .send({ message: "_id was not found or does not exist" });
       } else if (e.statusCode === NOT_FOUND_ERROR_CODE) {
         res
           .status(NOT_FOUND_ERROR_CODE)

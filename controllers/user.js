@@ -10,6 +10,8 @@ const {
   NOT_FOUND_ERROR_CODE,
   INTERNAL_SERVER_ERROR_CODE,
   CONFLICT_ERROR_CODE,
+  VALIDATION_ERROR_CODE,
+  UNAUTHORIZED_ERROR_CODE,
 } = require("../utils/errors");
 
 const createUser = (req, res) => {
@@ -30,7 +32,6 @@ const createUser = (req, res) => {
             console.log(userInfo);
             console.log(userInfo._id);
             res.status(201).send({
-              data: userInfo,
               name: req.body.name,
               avatar: req.body.avatar,
               email: req.body.email,
@@ -53,7 +54,7 @@ const createUser = (req, res) => {
               console.log(error.name);
               res
                 .status(INTERNAL_SERVER_ERROR_CODE)
-                .send({ message: "Error from createUser", error });
+                .send({ message: "Error from createUser" });
             }
           }),
       );
@@ -65,6 +66,10 @@ const createUser = (req, res) => {
         res
           .status(CONFLICT_ERROR_CODE)
           .send({ message: "Email already exists" });
+      } else {
+        res
+          .status(INTERNAL_SERVER_ERROR_CODE)
+          .send({ message: "Error from createUser" });
       }
     });
   // .catch((error) => {
@@ -91,38 +96,40 @@ const createUser = (req, res) => {
 
 // write if statements in the catch blocks that catch the specific types of errors
 
-const getUser = (req, res) => {
-  const { userId } = req.params;
-  user
-    .findById(userId)
-    .orFail(() => {
-      const error = new Error("User ID not found");
-      error.statusCode = NOT_FOUND_ERROR_CODE;
-      throw error; // Remember to throw an error so .catch handles it instead of .then
-    })
-    .then((items) => {
-      res.status(200).send(items);
-    })
-    .catch((error) => {
-      console.log("im here in catch");
-      console.log(error.name);
-      console.log(error.statusCode);
-      if (error.name === "CastError") {
-        res
-          .status(CAST_ERROR_ERROR_CODE)
-          .send({ message: "Cast Error occurred", error });
-      } else if (error.statusCode === NOT_FOUND_ERROR_CODE) {
-        res
-          .status(NOT_FOUND_ERROR_CODE)
-          .send({ message: "id is incorrect or does not exist", error });
-      } else {
-        res
-          .status(INTERNAL_SERVER_ERROR_CODE)
-          .send({ message: "Error from getUser" });
-        console.log(error.name);
-      }
-    });
-};
+// delete this
+
+// const getUser = (req, res) => {
+//   const { userId } = req.params;
+//   user
+//     .findById(userId)
+//     .orFail(() => {
+//       const error = new Error("User ID not found");
+//       error.statusCode = NOT_FOUND_ERROR_CODE;
+//       throw error; // Remember to throw an error so .catch handles it instead of .then
+//     })
+//     .then((items) => {
+//       res.status(200).send(items);
+//     })
+//     .catch((error) => {
+//       console.log("im here in catch");
+//       console.log(error.name);
+//       console.log(error.statusCode);
+//       if (error.name === "CastError") {
+//         res
+//           .status(CAST_ERROR_ERROR_CODE)
+//           .send({ message: "Cast Error occurred", error });
+//       } else if (error.statusCode === NOT_FOUND_ERROR_CODE) {
+//         res
+//           .status(NOT_FOUND_ERROR_CODE)
+//           .send({ message: "id is incorrect or does not exist", error });
+//       } else {
+//         res
+//           .status(INTERNAL_SERVER_ERROR_CODE)
+//           .send({ message: "Error from getUser" });
+//         console.log(error.name);
+//       }
+//     });
+// };
 
 const getUsers = (req, res) => {
   user
@@ -131,6 +138,11 @@ const getUsers = (req, res) => {
       res.status(200).send(users);
     })
     .catch((e) => {
+      if (e.name === "ValidationError") {
+        res
+          .status(VALIDATION_ERROR_CODE)
+          .send({ message: "Validation is incorrect" });
+      }
       console.log(e.name);
       res
         .status(INTERNAL_SERVER_ERROR_CODE)
@@ -159,7 +171,7 @@ const login = (req, res) => {
       // authentication error
       console.log("we landed at the auth error");
       console.error(err);
-      res.status(401).send({ message: err.message });
+      res.status(UNAUTHORIZED_ERROR_CODE).send({ message: err.message });
     });
 };
 
@@ -180,29 +192,33 @@ const getCurrentUser = (req, res) => {
     .catch((e) => {
       res
         .status(INTERNAL_SERVER_ERROR_CODE)
-        .json({ error: "Internal server error occurred", e });
+        .send({ error: "Internal server error occurred" });
     });
 };
 
 const updateProfile = (req, res) => {
   const userId = req.user._id;
   // const { userId } = req.params;
-  const { name, avatar, email } = req.body;
+  const { name, avatar } = req.body;
   console.log(userId);
   user
     .findOneAndUpdate(userId)
     .then((userInfo) => {
-      res.status(200).send({ data: userInfo, name, avatar, email });
+      res.status(200).send({ data: userInfo, name, avatar });
     })
     .catch((error) => {
       if (error.name === "CastError") {
         res
           .status(CAST_ERROR_ERROR_CODE)
-          .send({ message: "Cast Error occurred", error });
+          .send({ message: "Cast Error occurred" });
       } else if (error.statusCode === NOT_FOUND_ERROR_CODE) {
         res
           .status(NOT_FOUND_ERROR_CODE)
-          .send({ message: "id is incorrect or does not exist", error });
+          .send({ message: "id is incorrect or does not exist" });
+      } else if (error.name === "ValidationError") {
+        res
+          .status(VALIDATION_ERROR_CODE)
+          .send({ message: "validation error has occurred" });
       } else {
         res
           .status(INTERNAL_SERVER_ERROR_CODE)
@@ -224,13 +240,13 @@ const updateProfile = (req, res) => {
 
 module.exports = {
   createUser,
-  getUser,
   getUsers,
   login,
   getCurrentUser,
   updateProfile,
 };
 
+// getUser,
 /* -------------------------------------------------------------------------- */
 /*                                    Notes                                   */
 /* -------------------------------------------------------------------------- */
