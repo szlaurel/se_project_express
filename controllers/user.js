@@ -187,22 +187,30 @@ const getCurrentUser = (req, res) => {
           .send({ error: "user not found" });
       }
       console.log(currentUser);
-      res.status(200).send({ data: currentUser });
+      return res.status(200).send({ data: currentUser });
     })
     .catch((e) => {
+      console.log(e);
       res
         .status(INTERNAL_SERVER_ERROR_CODE)
         .send({ error: "Internal server error occurred" });
     });
 };
 
+// i have a feeling that in sprint 14 they're going to ask me to create a controller regarding changing the email seperately and maybe the password and if thats the case just look onto the updateProfile for an example of how to properly change it
+
 const updateProfile = (req, res) => {
+  // This code will return failed on postman because were not sending the new email through to be updated
   const userId = req.user._id;
   // const { userId } = req.params;
   const { name, avatar } = req.body;
   console.log(userId);
   user
-    .findOneAndUpdate(userId)
+    .findOneAndUpdate(
+      { _id: req.user._id },
+      { name, avatar },
+      { new: true, runValidators: true },
+    )
     .then((userInfo) => {
       res.status(200).send({ data: userInfo, name, avatar });
     })
