@@ -14,6 +14,14 @@ const {
   UNAUTHORIZED_ERROR_CODE,
 } = require("../utils/errors");
 
+const {
+  BadRequestError,
+  UnauthorizedError,
+  ForbiddenError,
+  NotFoundError,
+  ConflictError,
+} = require("../errors/customErrors");
+
 const createUser = (req, res) => {
   const { name, avatar, email } = req.body;
   user
@@ -43,8 +51,8 @@ const createUser = (req, res) => {
             console.log(name);
             if (error.name === "ValidationError") {
               res
-                .status(CAST_ERROR_ERROR_CODE)
-                .send({ message: "Name is under or over character limit" });
+                .status(VALIDATION_ERROR_CODE)
+                .send({ message: error.message });
               // } else if (error.statusCode === CONFLICT_ERROR_CODE) {
               //   // Handle the MongoDB duplicate key error for the 'email' field
               //   res
@@ -153,6 +161,7 @@ const getUsers = (req, res) => {
 const login = (req, res) => {
   const { email, password } = req.body;
   // add a check to see that email or pass is not null
+  // in the user.findUserByCredentials i added the {} in the parameters to find the email and the password
 
   return user
     .findUserByCredentials(email, password)
@@ -169,7 +178,7 @@ const login = (req, res) => {
     })
     .catch((err) => {
       // authentication error
-      console.log("we landed at the auth error");
+      console.log("we landed at the auth error here in the backend for login");
       console.error(err);
       res.status(UNAUTHORIZED_ERROR_CODE).send({ message: err.message });
     });

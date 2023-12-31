@@ -7,8 +7,17 @@ const express = require("express");
 const { PORT = 3001 } = process.env;
 const mongoose = require("mongoose");
 const cors = require("cors");
+const errorHandler = require("./middleware/errorHandler.js");
 
 const app = express();
+// mongoose.connect(
+//   "mongodb://localhost:27017/wtwr_db",
+//   () => {
+//     console.log("connected to DB");
+//   },
+//   (e) => console.log("DB error", e),
+// );
+
 mongoose.connect(
   "mongodb://127.0.0.1:27017/wtwr_db",
   () => {
@@ -22,6 +31,7 @@ const routes = require("./routes");
 app.use(express.json());
 app.use(cors());
 app.use(routes);
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`app is listening at port ${PORT}`);

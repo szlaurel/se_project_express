@@ -7,8 +7,8 @@ const user = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    minlength: 2,
-    maxlength: 30,
+    minlength: [2, "this is the minlength"],
+    maxlength: [30, "this is the maxlength"],
   },
   avatar: {
     type: String,
@@ -49,7 +49,11 @@ user.statics.findUserByCredentials = function findUserByCredentials(
   return this.findOne({ email })
     .select("+password")
     .then((userInfo) => {
-      console.log(password, userInfo.password);
+      // console.log(password, userInfo.password);
+      console.log(
+        userInfo,
+        "this is where the null comes from in user.Statics.findUserByCredentials just in case it shows null",
+      );
       if (!userInfo) {
         return Promise.reject(new Error("Nonexistent userInfo"));
       }
