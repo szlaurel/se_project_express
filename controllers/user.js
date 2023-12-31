@@ -50,19 +50,16 @@ const createUser = (req, res) => {
             console.log(error);
             console.log(name);
             if (error.name === "ValidationError") {
-              res
-                .status(VALIDATION_ERROR_CODE)
-                .send({ message: error.message });
-              // } else if (error.statusCode === CONFLICT_ERROR_CODE) {
-              //   // Handle the MongoDB duplicate key error for the 'email' field
-              //   res
-              //     .status(CONFLICT_ERROR_CODE)
-              //     .send({ message: "Email already exists" });
+              next(new BadRequestError(error.message));
+              // res
+              //   .status(VALIDATION_ERROR_CODE)
+              //   .send({ message: error.message });
             } else {
-              console.log(error.name);
-              res
-                .status(INTERNAL_SERVER_ERROR_CODE)
-                .send({ message: "Error from createUser" });
+              next(error);
+              // console.log(error.name);
+              // res
+              //   .status(INTERNAL_SERVER_ERROR_CODE)
+              //   .send({ message: "Error from createUser" });
             }
           }),
       );
@@ -71,13 +68,9 @@ const createUser = (req, res) => {
       console.log(e);
       if (e.statusCode === CONFLICT_ERROR_CODE) {
         // Handle the MongoDB duplicate key error for the 'email' field
-        res
-          .status(CONFLICT_ERROR_CODE)
-          .send({ message: "Email already exists" });
+        next(new ConflictError("Email already exists"));
       } else {
-        res
-          .status(INTERNAL_SERVER_ERROR_CODE)
-          .send({ message: "Error from createUser" });
+        next(e);
       }
     });
   // .catch((error) => {
@@ -106,39 +99,6 @@ const createUser = (req, res) => {
 
 // delete this
 
-// const getUser = (req, res) => {
-//   const { userId } = req.params;
-//   user
-//     .findById(userId)
-//     .orFail(() => {
-//       const error = new Error("User ID not found");
-//       error.statusCode = NOT_FOUND_ERROR_CODE;
-//       throw error; // Remember to throw an error so .catch handles it instead of .then
-//     })
-//     .then((items) => {
-//       res.status(200).send(items);
-//     })
-//     .catch((error) => {
-//       console.log("im here in catch");
-//       console.log(error.name);
-//       console.log(error.statusCode);
-//       if (error.name === "CastError") {
-//         res
-//           .status(CAST_ERROR_ERROR_CODE)
-//           .send({ message: "Cast Error occurred", error });
-//       } else if (error.statusCode === NOT_FOUND_ERROR_CODE) {
-//         res
-//           .status(NOT_FOUND_ERROR_CODE)
-//           .send({ message: "id is incorrect or does not exist", error });
-//       } else {
-//         res
-//           .status(INTERNAL_SERVER_ERROR_CODE)
-//           .send({ message: "Error from getUser" });
-//         console.log(error.name);
-//       }
-//     });
-// };
-
 const getUsers = (req, res) => {
   user
     .find({})
@@ -147,14 +107,13 @@ const getUsers = (req, res) => {
     })
     .catch((e) => {
       if (e.name === "ValidationError") {
-        res
-          .status(VALIDATION_ERROR_CODE)
-          .send({ message: "Validation is incorrect" });
+        next(new BadRequestError("Validation is incorrect"));
       }
       console.log(e.name);
-      res
-        .status(INTERNAL_SERVER_ERROR_CODE)
-        .send({ message: "Error from getUsers" });
+      next(e);
+      // res
+      //   .status(INTERNAL_SERVER_ERROR_CODE)
+      //   .send({ message: "Error from getUsers" });
     });
 };
 
@@ -180,7 +139,8 @@ const login = (req, res) => {
       // authentication error
       console.log("we landed at the auth error here in the backend for login");
       console.error(err);
-      res.status(UNAUTHORIZED_ERROR_CODE).send({ message: err.message });
+      next(new UnauthorizedError(err.message));
+      // res.status(UNAUTHORIZED_ERROR_CODE).send({ message: err.message });
     });
 };
 
@@ -191,18 +151,20 @@ const getCurrentUser = (req, res) => {
     .findById(userId)
     .then((currentUser) => {
       if (!currentUser) {
-        return res
-          .status(NOT_FOUND_ERROR_CODE)
-          .send({ error: "user not found" });
+        next(new NotFoundError("user not found"));
+        // return res
+        //   .status(NOT_FOUND_ERROR_CODE)
+        //   .send({ error: "user not found" });
       }
       console.log(currentUser);
       return res.status(200).send({ data: currentUser });
     })
     .catch((e) => {
       console.log(e);
-      res
-        .status(INTERNAL_SERVER_ERROR_CODE)
-        .send({ error: "Internal server error occurred" });
+      next(e);
+      // res
+      //   .status(INTERNAL_SERVER_ERROR_CODE)
+      //   .send({ error: "Internal server error occurred" });
     });
 };
 
@@ -225,21 +187,25 @@ const updateProfile = (req, res) => {
     })
     .catch((error) => {
       if (error.name === "CastError") {
-        res
-          .status(CAST_ERROR_ERROR_CODE)
-          .send({ message: "Cast Error occurred" });
+        next(new BadRequestError(error.message));
+        // res
+        //   .status(CAST_ERROR_ERROR_CODE)
+        //   .send({ message: "Cast Error occurred" });
       } else if (error.statusCode === NOT_FOUND_ERROR_CODE) {
-        res
-          .status(NOT_FOUND_ERROR_CODE)
-          .send({ message: "id is incorrect or does not exist" });
+        next(new NotFoundError("id is incorrect or does not exist"));
+        // res
+        //   .status(NOT_FOUND_ERROR_CODE)
+        //   .send({ message: "id is incorrect or does not exist" });
       } else if (error.name === "ValidationError") {
-        res
-          .status(VALIDATION_ERROR_CODE)
-          .send({ message: "validation error has occurred" });
+        next(new BadRequestError("validation error has occurred"));
+        // res
+        //   .status(VALIDATION_ERROR_CODE)
+        //   .send({ message: "validation error has occurred" });
       } else {
-        res
-          .status(INTERNAL_SERVER_ERROR_CODE)
-          .send({ message: "Error from updateProfile" });
+        // res
+        next(error);
+        //   .status(INTERNAL_SERVER_ERROR_CODE)
+        //   .send({ message: "Error from updateProfile" });
         console.log(error.name);
       }
     });
