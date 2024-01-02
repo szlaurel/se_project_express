@@ -6,6 +6,13 @@ const { auth } = require("../middleware/auth");
 // getUser,
 // getUsers,
 
+const {
+  userAndClothingIds,
+  userId,
+  authenticateUser,
+  createUser,
+} = require("../middleware/validation");
+
 // CRUD
 
 /* -------------------------------------------------------------------------- */

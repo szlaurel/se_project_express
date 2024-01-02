@@ -9,6 +9,12 @@ const {
 
 const { auth } = require("../middleware/auth");
 
+const {
+  userAndClothingIds,
+  validateIds,
+  createClothingItem,
+} = require("../middleware/validation");
+
 // CRUD
 
 /* -------------------------------------------------------------------------- */
