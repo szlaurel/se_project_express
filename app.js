@@ -8,7 +8,7 @@ const { PORT = 3001 } = process.env;
 const mongoose = require("mongoose");
 const cors = require("cors");
 const { errors } = require("celebrate");
-const errorHandler = require("./middleware/errorHandler.js");
+const errorHandler = require("./middleware/errorHandler");
 const { requestLogger, errorLogger } = require("./middleware/logger");
 
 const app = express();
@@ -30,7 +30,6 @@ mongoose.connect(
 
 const routes = require("./routes");
 
-
 /* -------------------------------------------------------------------------- */
 /*       the order in which these app.use go in matter so pay attention       */
 /* -------------------------------------------------------------------------- */
@@ -39,10 +38,9 @@ app.use(express.json());
 app.use(cors());
 app.use(requestLogger);
 app.use(routes);
-app.use(errorLogger)
+app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
-
 
 app.listen(PORT, () => {
   console.log(`app is listening at port ${PORT}`);
