@@ -30,7 +30,7 @@ module.exports.createClothingItem = celebrate({
   }),
 });
 
-module.exports.createUser = celebrate({
+module.exports.createUserValidation = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30).messages({
       "string.min": 'The minimum length of the "name" field is 2',
@@ -57,9 +57,14 @@ module.exports.userAndClothingIds = celebrate({
   }),
 });
 
-module.exports.validateIds = celebrate({
+module.exports.validateItemIds = celebrate({
   params: Joi.object().keys({
-    itemId: Joi.string().required(),
-    userId: Joi.string().required(),
+    itemId: Joi.string().required().length(24),
+  }),
+});
+
+module.exports.validateUserIds = celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().required().length(24),
   }),
 });

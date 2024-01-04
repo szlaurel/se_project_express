@@ -34,6 +34,11 @@ const routes = require("./routes");
 /*       the order in which these app.use go in matter so pay attention       */
 /* -------------------------------------------------------------------------- */
 
+app.get("/crash-test", () => {
+  setTimeout(() => {
+    throw new Error("Server will crash now");
+  }, 0);
+});
 app.use(express.json());
 app.use(cors());
 app.use(requestLogger);

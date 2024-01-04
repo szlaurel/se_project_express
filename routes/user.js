@@ -10,7 +10,8 @@ const {
   userAndClothingIds,
   userId,
   authenticateUser,
-  createUser,
+  createUserValidation,
+  validateUserIds,
 } = require("../middleware/validation");
 
 // CRUD

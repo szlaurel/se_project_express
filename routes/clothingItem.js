@@ -10,10 +10,10 @@ const {
 const { auth } = require("../middleware/auth");
 
 const {
-  userAndClothingIds,
-  validateIds,
+  validateItemIds,
   createClothingItem,
 } = require("../middleware/validation");
+const { validate } = require("../models/user");
 
 // CRUD
 
@@ -21,7 +21,7 @@ const {
 /*                                   Create                                   */
 /* -------------------------------------------------------------------------- */
 
-router.post("/", auth, createItem);
+router.post("/", createClothingItem, auth, createItem);
 
 /* -------------------------------------------------------------------------- */
 /*                                    Read                                    */
@@ -34,13 +34,13 @@ router.get("/", getItems);
 /* -------------------------------------------------------------------------- */
 
 // router.put("/:itemId", updateItem);
-router.put("/:itemId/likes", auth, likeItem);
+router.put("/:itemId/likes", validateItemIds, auth, likeItem);
 
 /* -------------------------------------------------------------------------- */
 /*                                   Delete                                   */
 /* -------------------------------------------------------------------------- */
 
-router.delete("/:itemId", auth, deleteItem);
-router.delete("/:itemId/likes", auth, dislikeItem);
+router.delete("/:itemId", validateItemIds, auth, deleteItem);
+router.delete("/:itemId/likes", validateItemIds, auth, dislikeItem);
 
 module.exports = router;
