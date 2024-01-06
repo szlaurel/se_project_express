@@ -1,3 +1,9 @@
+const { JWT_SECRET } = process.env;
+
+const jwtSecret =
+  process.env.NODE_ENV === "production" ? JWT_SECRET : "default-value-for-dev";
+
 module.exports = {
-  JWT_SECRET: "my-secret-key",
+  jwtSecret,
+  // JWT_SECRET: "my-secret-key",
 };

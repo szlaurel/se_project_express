@@ -6,13 +6,7 @@ const { auth } = require("../middleware/auth");
 // getUser,
 // getUsers,
 
-const {
-  userAndClothingIds,
-  userId,
-  authenticateUser,
-  createUserValidation,
-  validateUserIds,
-} = require("../middleware/validation");
+const { updateUserInfo } = require("../middleware/validation");
 
 // CRUD
 
@@ -30,7 +24,7 @@ const {
 // router.get("/", getUsers);
 
 router.get("/me", auth, getCurrentUser);
-router.patch("/me", auth, updateProfile);
+router.patch("/me", updateUserInfo, auth, updateProfile);
 
 // router.patch("me", updateProfile)
 module.exports = router;

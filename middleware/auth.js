@@ -1,7 +1,9 @@
 // middleware/auth.js
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../utils/config");
+const { jwtSecret } = require("../utils/config");
 const { UNAUTHORIZED_ERROR_CODE } = require("../utils/errors");
+const { UnauthorizedError } = require("../errors/UnauthorizedError");
 
 console.log(JWT_SECRET);
 
@@ -12,9 +14,7 @@ const auth = (req, res, next) => {
   // check that the header exists and starts with 'Bearer '
   if (!authorization || !authorization.startsWith("Bearer ")) {
     console.log("hello");
-    return res
-      .status(UNAUTHORIZED_ERROR_CODE)
-      .send({ message: "Authorization required" });
+    throw new UnauthorizedError("Authorization required");
   }
 
   // auth header exists and is in correct format
@@ -24,14 +24,12 @@ const auth = (req, res, next) => {
   // if token is verified, save the payload
   let payload;
   try {
-    payload = jwt.verify(token, JWT_SECRET);
+    payload = jwt.verify(token, jwtSecret);
   } catch (err) {
     // otherwise, return an error
     console.log("hello from the catch block");
     console.error(err);
-    return res
-      .status(UNAUTHORIZED_ERROR_CODE)
-      .send({ message: "Authorization required" });
+    throw new UnauthorizedError("Authorization required");
   }
 
   /* Save payload to request. This makes the payload available

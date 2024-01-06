@@ -4,7 +4,8 @@ const user = require("../models/user");
 // const { validate } = require("../models/user");
 // const User = require("../models/user");
 // Need to destructure the JWT_SECRET when importing it
-const { JWT_SECRET } = require("../utils/config");
+// const { JWT_SECRET } = require("../utils/config");
+const { jwtSecret } = require("../utils/config");
 const {
   CAST_ERROR_ERROR_CODE,
   NOT_FOUND_ERROR_CODE,
@@ -14,13 +15,11 @@ const {
   UNAUTHORIZED_ERROR_CODE,
 } = require("../utils/errors");
 
-const {
-  BadRequestError,
-  UnauthorizedError,
-  ForbiddenError,
-  NotFoundError,
-  ConflictError,
-} = require("../errors/customErrors");
+const { BadRequestError } = require("../errors/BadRequestError");
+const { UnauthorizedError } = require("../errors/UnauthorizedError");
+const { ForbiddenError } = require("../errors/ForbiddenError");
+const { NotFoundError } = require("../errors/NotFoundError");
+const { ConflictError } = require("../errors/ConflictError");
 
 const createUser = (req, res) => {
   const { name, avatar, email } = req.body;
@@ -97,26 +96,6 @@ const createUser = (req, res) => {
 
 // write if statements in the catch blocks that catch the specific types of errors
 
-// delete this
-
-const getUsers = (req, res) => {
-  user
-    .find({})
-    .then((users) => {
-      res.status(200).send(users);
-    })
-    .catch((e) => {
-      if (e.name === "ValidationError") {
-        next(new BadRequestError("Validation is incorrect"));
-      }
-      console.log(e.name);
-      next(e);
-      // res
-      //   .status(INTERNAL_SERVER_ERROR_CODE)
-      //   .send({ message: "Error from getUsers" });
-    });
-};
-
 const login = (req, res) => {
   const { email, password } = req.body;
   // add a check to see that email or pass is not null
@@ -126,7 +105,7 @@ const login = (req, res) => {
     .findUserByCredentials(email, password)
     .then((userInfo) => {
       console.log({ e: email, p: password });
-      const token = jwt.sign({ _id: userInfo._id }, JWT_SECRET, {
+      const token = jwt.sign({ _id: userInfo._id }, jwtSecret, {
         expiresIn: "7d",
       });
 
@@ -223,7 +202,6 @@ const updateProfile = (req, res) => {
 
 module.exports = {
   createUser,
-  getUsers,
   login,
   getCurrentUser,
   updateProfile,
