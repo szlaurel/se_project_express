@@ -70,7 +70,7 @@ module.exports.validateUserIds = celebrate({
 });
 
 module.exports.updateUserInfo = celebrate({
-  params: Joi.object().keys({
+  body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     avatar: Joi.string().required().custom(validateUrl),
   }),

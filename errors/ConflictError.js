@@ -5,3 +5,5 @@ class ConflictError extends Error {
     this.statusCode = 409;
   }
 }
+
+module.exports = { ConflictError };

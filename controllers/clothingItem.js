@@ -18,7 +18,7 @@ const { ConflictError } = require("../errors/ConflictError");
 // need to check if the error handling on this is correct in createItem
 // and need to see if this is how youre supposed to do it
 
-const createItem = (req, res) => {
+const createItem = (req, res, next) => {
   console.log(req);
   console.log(req.body);
 
@@ -52,7 +52,7 @@ const createItem = (req, res) => {
     });
 };
 
-const getItems = (req, res) => {
+const getItems = (req, res, next) => {
   ClothingItem.find({})
     .then((items) => {
       res.status(200).send(items);
@@ -103,7 +103,7 @@ const getItems = (req, res) => {
 
 // need to still find out how to get the item owners _id for the delete card
 
-const deleteItem = (req, res) => {
+const deleteItem = (req, res, next) => {
   const { itemId } = req.params;
   const userId = req.user._id;
 
@@ -195,7 +195,7 @@ const deleteItem = (req, res) => {
   // });
 };
 
-const likeItem = (req, res) =>
+const likeItem = (req, res, next) =>
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
     { $addToSet: { likes: req.user._id } },
@@ -225,7 +225,7 @@ const likeItem = (req, res) =>
       }
     });
 
-const dislikeItem = (req, res) =>
+const dislikeItem = (req, res, next) =>
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
     { $pull: { likes: req.user._id } },

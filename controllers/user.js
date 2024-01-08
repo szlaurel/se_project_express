@@ -21,7 +21,7 @@ const { ForbiddenError } = require("../errors/ForbiddenError");
 const { NotFoundError } = require("../errors/NotFoundError");
 const { ConflictError } = require("../errors/ConflictError");
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, avatar, email } = req.body;
   user
     .findOne({ email })
@@ -96,7 +96,7 @@ const createUser = (req, res) => {
 
 // write if statements in the catch blocks that catch the specific types of errors
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   // add a check to see that email or pass is not null
   // in the user.findUserByCredentials i added the {} in the parameters to find the email and the password
@@ -123,7 +123,7 @@ const login = (req, res) => {
     });
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   const userId = req.user._id;
   // const { userId } = req.params;
   user
@@ -149,7 +149,7 @@ const getCurrentUser = (req, res) => {
 
 // i have a feeling that in sprint 14 they're going to ask me to create a controller regarding changing the email seperately and maybe the password and if thats the case just look onto the updateProfile for an example of how to properly change it
 
-const updateProfile = (req, res) => {
+const updateProfile = (req, res, next) => {
   // This code will return failed on postman because were not sending the new email through to be updated
   const userId = req.user._id;
   // const { userId } = req.params;
