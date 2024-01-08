@@ -13,7 +13,6 @@ const {
   validateItemIds,
   createClothingItem,
 } = require("../middleware/validation");
-const { validate } = require("../models/user");
 
 // CRUD
 

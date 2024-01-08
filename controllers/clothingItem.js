@@ -2,18 +2,13 @@ const mongoose = require("mongoose");
 // const { findOneAndDelete } = require("../models/clothingitem");
 const ClothingItem = require("../models/clothingitem");
 const {
-  CAST_ERROR_ERROR_CODE,
-  VALIDATION_ERROR_CODE,
   NOT_FOUND_ERROR_CODE,
-  INTERNAL_SERVER_ERROR_CODE,
   FORBIDDEN_ERROR_CODE,
 } = require("../utils/errors");
 
 const { BadRequestError } = require("../errors/BadRequestError");
-const { UnauthorizedError } = require("../errors/UnauthorizedError");
 const { ForbiddenError } = require("../errors/ForbiddenError");
 const { NotFoundError } = require("../errors/NotFoundError");
-const { ConflictError } = require("../errors/ConflictError");
 
 // need to check if the error handling on this is correct in createItem
 // and need to see if this is how youre supposed to do it

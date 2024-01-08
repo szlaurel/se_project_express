@@ -7,8 +7,6 @@ const { NotFoundError } = require("../errors/NotFoundError");
 const {
   authenticateUser,
   createUserValidation,
-  validateItemIds,
-  validateUserIds,
 } = require("../middleware/validation");
 
 router.post("/signin", authenticateUser, login);
@@ -19,7 +17,7 @@ router.use("/users", user);
 /* -------------------------------------------------------------------------- */
 /*                  Original router.use code for the project                  */
 /* -------------------------------------------------------------------------- */
-router.use((req, res) => {
+router.use(() => {
   throw new NotFoundError("Router not found");
 });
 

@@ -7,17 +7,12 @@ const user = require("../models/user");
 // const { JWT_SECRET } = require("../utils/config");
 const { jwtSecret } = require("../utils/config");
 const {
-  CAST_ERROR_ERROR_CODE,
   NOT_FOUND_ERROR_CODE,
-  INTERNAL_SERVER_ERROR_CODE,
   CONFLICT_ERROR_CODE,
-  VALIDATION_ERROR_CODE,
-  UNAUTHORIZED_ERROR_CODE,
 } = require("../utils/errors");
 
 const { BadRequestError } = require("../errors/BadRequestError");
 const { UnauthorizedError } = require("../errors/UnauthorizedError");
-const { ForbiddenError } = require("../errors/ForbiddenError");
 const { NotFoundError } = require("../errors/NotFoundError");
 const { ConflictError } = require("../errors/ConflictError");
 
